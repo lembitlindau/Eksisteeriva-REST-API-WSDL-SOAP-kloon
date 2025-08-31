@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+             xmlns:tns="http://example.com/medium-clone"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             targetNamespace="http://example.com/medium-clone">
+
+    <!-- Import types from XSD -->
+    <types>
+        <xsd:schema targetNamespace="http://example.com/medium-clone">
+            
+            <!-- User Type -->
+            <xsd:complexType name="User">
+                <xsd:sequence>
+                    <xsd:element name="id" type="xsd:string"/>
+                    <xsd:element name="username" type="xsd:string"/>
+                    <xsd:element name="email" type="xsd:string"/>
+                    <xsd:element name="password" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="bio" type="xsd:string"/>
+                    <xsd:element name="avatar" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Article Type -->
+            <xsd:complexType name="Article">
+                <xsd:sequence>
+                    <xsd:element name="id" type="xsd:string"/>
+                    <xsd:element name="title" type="xsd:string"/>
+                    <xsd:element name="content" type="xsd:string"/>
+                    <xsd:element name="authorId" type="xsd:string"/>
+                    <xsd:element name="createdAt" type="xsd:dateTime"/>
+                    <xsd:element name="tags" type="tns:TagArray" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Tag Type -->
+            <xsd:complexType name="Tag">
+                <xsd:sequence>
+                    <xsd:element name="id" type="xsd:string"/>
+                    <xsd:element name="name" type="xsd:string"/>
+                    <xsd:element name="description" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Arrays -->
+            <xsd:complexType name="UserArray">
+                <xsd:sequence>
+                    <xsd:element name="user" type="tns:User" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="ArticleArray">
+                <xsd:sequence>
+                    <xsd:element name="article" type="tns:Article" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="TagArray">
+                <xsd:sequence>
+                    <xsd:element name="tag" type="tns:Tag" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Login Request/Response -->
+            <xsd:complexType name="LoginRequest">
+                <xsd:sequence>
+                    <xsd:element name="email" type="xsd:string"/>
+                    <xsd:element name="password" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="LoginResponse">
+                <xsd:sequence>
+                    <xsd:element name="token" type="xsd:string"/>
+                    <xsd:element name="user" type="tns:User"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Update Types for partial updates -->
+            <xsd:complexType name="UserUpdate">
+                <xsd:sequence>
+                    <xsd:element name="username" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="email" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="bio" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="avatar" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="ArticleUpdate">
+                <xsd:sequence>
+                    <xsd:element name="title" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="content" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="TagUpdate">
+                <xsd:sequence>
+                    <xsd:element name="name" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- String Array for tag IDs -->
+            <xsd:complexType name="StringArray">
+                <xsd:sequence>
+                    <xsd:element name="item" type="xsd:string" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Response Types -->
+            <xsd:complexType name="SuccessResponse">
+                <xsd:sequence>
+                    <xsd:element name="success" type="xsd:boolean"/>
+                    <xsd:element name="message" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Fault Type -->
+            <xsd:complexType name="ServiceFault">
+                <xsd:sequence>
+                    <xsd:element name="faultCode" type="xsd:string"/>
+                    <xsd:element name="faultString" type="xsd:string"/>
+                    <xsd:element name="detail" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+        </xsd:schema>
+    </types>
+
+    <!-- Messages for Session Operations -->
+    <message name="LoginRequest">
+        <part name="parameters" type="tns:LoginRequest"/>
+    </message>
+    <message name="LoginResponse">
+        <part name="parameters" type="tns:LoginResponse"/>
+    </message>
+    <message name="LogoutRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="LogoutResponse">
+        <part name="parameters" type="tns:SuccessResponse"/>
+    </message>
+
+    <!-- Messages for User Operations -->
+    <message name="GetAllUsersRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="GetAllUsersResponse">
+        <part name="parameters" type="tns:UserArray"/>
+    </message>
+    <message name="CreateUserRequest">
+        <part name="parameters" type="tns:User"/>
+    </message>
+    <message name="CreateUserResponse">
+        <part name="parameters" type="tns:User"/>
+    </message>
+    <message name="GetUserRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="GetUserResponse">
+        <part name="parameters" type="tns:User"/>
+    </message>
+    <message name="UpdateUserRequest">
+        <part name="id" type="xsd:string"/>
+        <part name="user" type="tns:User"/>
+    </message>
+    <message name="UpdateUserResponse">
+        <part name="parameters" type="tns:User"/>
+    </message>
+    <message name="PartialUpdateUserRequest">
+        <part name="id" type="xsd:string"/>
+        <part name="userUpdate" type="tns:UserUpdate"/>
+    </message>
+    <message name="PartialUpdateUserResponse">
+        <part name="parameters" type="tns:User"/>
+    </message>
+    <message name="DeleteUserRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="DeleteUserResponse">
+        <part name="parameters" type="tns:SuccessResponse"/>
+    </message>
+
+    <!-- Messages for Article Operations -->
+    <message name="GetAllArticlesRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="GetAllArticlesResponse">
+        <part name="parameters" type="tns:ArticleArray"/>
+    </message>
+    <message name="CreateArticleRequest">
+        <part name="parameters" type="tns:Article"/>
+    </message>
+    <message name="CreateArticleResponse">
+        <part name="parameters" type="tns:Article"/>
+    </message>
+    <message name="GetArticleRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="GetArticleResponse">
+        <part name="parameters" type="tns:Article"/>
+    </message>
+    <message name="UpdateArticleRequest">
+        <part name="id" type="xsd:string"/>
+        <part name="article" type="tns:Article"/>
+    </message>
+    <message name="UpdateArticleResponse">
+        <part name="parameters" type="tns:Article"/>
+    </message>
+    <message name="PartialUpdateArticleRequest">
+        <part name="id" type="xsd:string"/>
+        <part name="articleUpdate" type="tns:ArticleUpdate"/>
+    </message>
+    <message name="PartialUpdateArticleResponse">
+        <part name="parameters" type="tns:Article"/>
+    </message>
+    <message name="DeleteArticleRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="DeleteArticleResponse">
+        <part name="parameters" type="tns:SuccessResponse"/>
+    </message>
+
+    <!-- Messages for Tag Operations -->
+    <message name="GetAllTagsRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="GetAllTagsResponse">
+        <part name="parameters" type="tns:TagArray"/>
+    </message>
+    <message name="CreateTagRequest">
+        <part name="parameters" type="tns:Tag"/>
+    </message>
+    <message name="CreateTagResponse">
+        <part name="parameters" type="tns:Tag"/>
+    </message>
+    <message name="GetTagRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="GetTagResponse">
+        <part name="parameters" type="tns:Tag"/>
+    </message>
+    <message name="UpdateTagRequest">
+        <part name="id" type="xsd:string"/>
+        <part name="tag" type="tns:Tag"/>
+    </message>
+    <message name="UpdateTagResponse">
+        <part name="parameters" type="tns:Tag"/>
+    </message>
+    <message name="PartialUpdateTagRequest">
+        <part name="id" type="xsd:string"/>
+        <part name="tagUpdate" type="tns:TagUpdate"/>
+    </message>
+    <message name="PartialUpdateTagResponse">
+        <part name="parameters" type="tns:Tag"/>
+    </message>
+    <message name="DeleteTagRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="DeleteTagResponse">
+        <part name="parameters" type="tns:SuccessResponse"/>
+    </message>
+
+    <!-- Messages for Article-Tag Operations -->
+    <message name="GetArticleTagsRequest">
+        <part name="parameters" type="xsd:string"/>
+    </message>
+    <message name="GetArticleTagsResponse">
+        <part name="parameters" type="tns:TagArray"/>
+    </message>
+    <message name="AddTagsToArticleRequest">
+        <part name="articleId" type="xsd:string"/>
+        <part name="tagIds" type="tns:StringArray"/>
+    </message>
+    <message name="AddTagsToArticleResponse">
+        <part name="parameters" type="tns:SuccessResponse"/>
+    </message>
+    <message name="RemoveTagsFromArticleRequest">
+        <part name="articleId" type="xsd:string"/>
+        <part name="tagIds" type="tns:StringArray"/>
+    </message>
+    <message name="RemoveTagsFromArticleResponse">
+        <part name="parameters" type="tns:SuccessResponse"/>
+    </message>
+
+    <!-- Fault Message -->
+    <message name="ServiceFaultMessage">
+        <part name="fault" type="tns:ServiceFault"/>
+    </message>
+
+    <!-- Port Type -->
+    <portType name="MediumClonePortType">
+        
+        <!-- Session Operations -->
+        <operation name="Login">
+            <input message="tns:LoginRequest"/>
+            <output message="tns:LoginResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="Logout">
+            <input message="tns:LogoutRequest"/>
+            <output message="tns:LogoutResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+
+        <!-- User Operations -->
+        <operation name="GetAllUsers">
+            <input message="tns:GetAllUsersRequest"/>
+            <output message="tns:GetAllUsersResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="CreateUser">
+            <input message="tns:CreateUserRequest"/>
+            <output message="tns:CreateUserResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="GetUser">
+            <input message="tns:GetUserRequest"/>
+            <output message="tns:GetUserResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="UpdateUser">
+            <input message="tns:UpdateUserRequest"/>
+            <output message="tns:UpdateUserResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="PartialUpdateUser">
+            <input message="tns:PartialUpdateUserRequest"/>
+            <output message="tns:PartialUpdateUserResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="DeleteUser">
+            <input message="tns:DeleteUserRequest"/>
+            <output message="tns:DeleteUserResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+
+        <!-- Article Operations -->
+        <operation name="GetAllArticles">
+            <input message="tns:GetAllArticlesRequest"/>
+            <output message="tns:GetAllArticlesResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="CreateArticle">
+            <input message="tns:CreateArticleRequest"/>
+            <output message="tns:CreateArticleResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="GetArticle">
+            <input message="tns:GetArticleRequest"/>
+            <output message="tns:GetArticleResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="UpdateArticle">
+            <input message="tns:UpdateArticleRequest"/>
+            <output message="tns:UpdateArticleResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="PartialUpdateArticle">
+            <input message="tns:PartialUpdateArticleRequest"/>
+            <output message="tns:PartialUpdateArticleResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="DeleteArticle">
+            <input message="tns:DeleteArticleRequest"/>
+            <output message="tns:DeleteArticleResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+
+        <!-- Tag Operations -->
+        <operation name="GetAllTags">
+            <input message="tns:GetAllTagsRequest"/>
+            <output message="tns:GetAllTagsResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="CreateTag">
+            <input message="tns:CreateTagRequest"/>
+            <output message="tns:CreateTagResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="GetTag">
+            <input message="tns:GetTagRequest"/>
+            <output message="tns:GetTagResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="UpdateTag">
+            <input message="tns:UpdateTagRequest"/>
+            <output message="tns:UpdateTagResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="PartialUpdateTag">
+            <input message="tns:PartialUpdateTagRequest"/>
+            <output message="tns:PartialUpdateTagResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="DeleteTag">
+            <input message="tns:DeleteTagRequest"/>
+            <output message="tns:DeleteTagResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+
+        <!-- Article-Tag Operations -->
+        <operation name="GetArticleTags">
+            <input message="tns:GetArticleTagsRequest"/>
+            <output message="tns:GetArticleTagsResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="AddTagsToArticle">
+            <input message="tns:AddTagsToArticleRequest"/>
+            <output message="tns:AddTagsToArticleResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+        <operation name="RemoveTagsFromArticle">
+            <input message="tns:RemoveTagsFromArticleRequest"/>
+            <output message="tns:RemoveTagsFromArticleResponse"/>
+            <fault name="ServiceFault" message="tns:ServiceFaultMessage"/>
+        </operation>
+
+    </portType>
+
+    <!-- Binding -->
+    <binding name="MediumCloneBinding" type="tns:MediumClonePortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <!-- Session Operations -->
+        <operation name="Login">
+            <soap:operation soapAction="Login"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="Logout">
+            <soap:operation soapAction="Logout"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+
+        <!-- User Operations -->
+        <operation name="GetAllUsers">
+            <soap:operation soapAction="GetAllUsers"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="CreateUser">
+            <soap:operation soapAction="CreateUser"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="GetUser">
+            <soap:operation soapAction="GetUser"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="UpdateUser">
+            <soap:operation soapAction="UpdateUser"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="PartialUpdateUser">
+            <soap:operation soapAction="PartialUpdateUser"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="DeleteUser">
+            <soap:operation soapAction="DeleteUser"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+
+        <!-- Article Operations -->
+        <operation name="GetAllArticles">
+            <soap:operation soapAction="GetAllArticles"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="CreateArticle">
+            <soap:operation soapAction="CreateArticle"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="GetArticle">
+            <soap:operation soapAction="GetArticle"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="UpdateArticle">
+            <soap:operation soapAction="UpdateArticle"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="PartialUpdateArticle">
+            <soap:operation soapAction="PartialUpdateArticle"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="DeleteArticle">
+            <soap:operation soapAction="DeleteArticle"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+
+        <!-- Tag Operations -->
+        <operation name="GetAllTags">
+            <soap:operation soapAction="GetAllTags"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="CreateTag">
+            <soap:operation soapAction="CreateTag"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="GetTag">
+            <soap:operation soapAction="GetTag"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="UpdateTag">
+            <soap:operation soapAction="UpdateTag"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="PartialUpdateTag">
+            <soap:operation soapAction="PartialUpdateTag"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="DeleteTag">
+            <soap:operation soapAction="DeleteTag"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+
+        <!-- Article-Tag Operations -->
+        <operation name="GetArticleTags">
+            <soap:operation soapAction="GetArticleTags"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="AddTagsToArticle">
+            <soap:operation soapAction="AddTagsToArticle"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+        <operation name="RemoveTagsFromArticle">
+            <soap:operation soapAction="RemoveTagsFromArticle"/>
+            <input><soap:body use="literal"/></input>
+            <output><soap:body use="literal"/></output>
+            <fault name="ServiceFault"><soap:fault name="ServiceFault" use="literal"/></fault>
+        </operation>
+
+    </binding>
+
+    <!-- Service -->
+    <service name="MediumCloneService">
+        <port name="MediumClonePort" binding="tns:MediumCloneBinding">
+            <soap:address location="http://localhost:8080/soap"/>
+        </port>
+    </service>
+
+</definitions>
